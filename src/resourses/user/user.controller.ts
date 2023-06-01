@@ -31,7 +31,7 @@ export class UserController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  async findOne(@Param('id', new ParseUUIDPipe()) id): Promise<UserEntity> {
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id): Promise<UserEntity> {
     return await this.userService.findOne(id);
   }
 
@@ -46,7 +46,7 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<UserEntity> {
     return this.userService.delete(id);
   }
@@ -56,7 +56,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async update(
     @Body() updateUserDto: UpdateUserDto,
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<UserEntity> {
     return this.userService.update(id, updateUserDto);
   }
