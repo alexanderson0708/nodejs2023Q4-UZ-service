@@ -1,9 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { InMemoryDb } from '../../db/db.service';
+import { InMemoryDb } from '../../db/db.service.db';
 import { TrackEntity } from './entities/track.entity';
-import { AlbumService } from '../album/album.service';
-import { ArtistService } from '../artist/artist.service';
 import { FavouritesService } from '../favourites/favourites.service';
 import { CreateTrackDto } from './dto/createTrack.dto';
 import { UpdateTrackDto } from './dto/updateTrack.dto';
@@ -12,8 +16,7 @@ import { UpdateTrackDto } from './dto/updateTrack.dto';
 export class TrackService {
   constructor(
     private db: InMemoryDb,
-    private readonly albumService: AlbumService,
-    private readonly artistService: ArtistService,
+    @Inject(forwardRef(() => FavouritesService))
     private readonly favouritesService: FavouritesService,
   ) {}
 
@@ -27,16 +30,6 @@ export class TrackService {
   }
 
   async create(createTrackDto: CreateTrackDto): Promise<TrackEntity> {
-    const { albumId, artistId } = createTrackDto;
-    if (albumId) {
-      const album = await this.albumService.findOne(albumId);
-      if (!album) this.notFound(albumId, 'album');
-    }
-    if (artistId) {
-      const artist = await this.artistService.findOne(artistId);
-      if (!artist) this.notFound(artistId, 'artist');
-    }
-
     const newTrack = {
       id: uuidv4(),
       ...createTrackDto,
@@ -51,18 +44,8 @@ export class TrackService {
     id: string,
     updateTrackDto: UpdateTrackDto,
   ): Promise<TrackEntity> {
-    const { albumId, artistId } = updateTrackDto;
     const trackIdx = this.db.tracks.findIndex((track) => track.id === id);
     if (trackIdx === -1) this.notFound(id, 'track');
-    if (albumId) {
-      const album = await this.albumService.findOne(albumId);
-      if (!album) this.notFound(albumId, 'album');
-    }
-    if (artistId) {
-      const artist = await this.artistService.findOne(artistId);
-      if (!artist) this.notFound(artistId, 'artist');
-    }
-
     this.db.tracks[trackIdx] = {
       ...this.db.tracks[trackIdx],
       ...updateTrackDto,
@@ -79,6 +62,16 @@ export class TrackService {
 
     const [deletedTrack] = this.db.tracks.splice(trackIdx, 1);
     return deletedTrack;
+  }
+
+  async removeArtistId(id: string) {
+    const artists = this.db.tracks.filter((track) => track.artistId !== id);
+    this.db.tracks = artists;
+  }
+
+  async removeAlbumId(id: string) {
+    const albums = this.db.tracks.filter((track) => track.albumId !== id);
+    this.db.tracks = albums;
   }
 
   private notFound(id: string, entity: string) {

@@ -24,6 +24,7 @@ export class AlbumController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<AlbumEntity[]> {
+    console.log(555);
     return this.albumService.findAll();
   }
 
@@ -31,7 +32,14 @@ export class AlbumController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findOne(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+        errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+      }),
+    )
+    id: string,
   ): Promise<AlbumEntity> {
     return await this.albumService.findOne(id);
   }

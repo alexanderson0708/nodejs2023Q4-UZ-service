@@ -1,16 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InMemoryDb } from '../../db/db.service';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { InMemoryDb } from '../../db/db.service.db';
 import { AlbumService } from '../album/album.service';
 import { ArtistService } from '../artist/artist.service';
 import { TrackService } from '../track/track.service';
-import { FavouritesEntity } from './entities/favourites.entity';
 
 @Injectable()
 export class FavouritesService {
   constructor(
     private db: InMemoryDb,
+    @Inject(forwardRef(() => AlbumService))
     private albumService: AlbumService,
+    @Inject(forwardRef(() => ArtistService))
     private artistService: ArtistService,
+    @Inject(forwardRef(() => TrackService))
     private trackService: TrackService,
   ) {}
   findAll() {
@@ -32,7 +40,7 @@ export class FavouritesService {
     const entityIdx = await this.db.favourites[
       `${entityType}Service`
     ].findIndex((entityId) => entityId === id);
-    if (!entityIdx)
+    if (entityIdx === -1)
       throw new HttpException(
         `${entityType.toUpperCase()} with id:${id} is not favorite`,
         HttpStatus.NOT_FOUND,
@@ -48,16 +56,16 @@ export class FavouritesService {
     return this.add(id, 'track');
   }
   async addArtist(id: string) {
-    return this.add(id, 'artist');
+    return await this.add(id, 'artist');
   }
 
   async removeAlbum(id: string) {
-    return this.remove(id, 'album');
+    return await this.remove(id, 'album');
   }
   async removeTrack(id: string) {
-    return this.remove(id, 'track');
+    return await this.remove(id, 'track');
   }
   async removeArtist(id: string) {
-    return this.remove(id, 'artist');
+    return await this.remove(id, 'artist');
   }
 }

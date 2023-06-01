@@ -1,7 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ArtistService } from '../artist/artist.service';
 import { FavouritesService } from '../favourites/favourites.service';
-import { InMemoryDb } from '../../db/db.service';
+import { InMemoryDb } from '../../db/db.service.db';
 import { TrackService } from '../track/track.service';
 import { AlbumEntity } from './entities/album.entity';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,8 +18,9 @@ import { UpdateAlbumDto } from './dto/updateAlbum.dto';
 export class AlbumService {
   constructor(
     private db: InMemoryDb,
-    private readonly artistService: ArtistService,
+    @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
+    @Inject(forwardRef(() => FavouritesService))
     private readonly favouritesService: FavouritesService,
   ) {}
 
@@ -22,7 +29,7 @@ export class AlbumService {
   }
 
   async findOne(id: string): Promise<AlbumEntity> {
-    const album = this.db.albums.find(({ id: userId }) => userId === id);
+    const album = this.db.albums.find(({ id: albumId }) => albumId === id);
     return album ?? null;
   }
 
@@ -44,11 +51,6 @@ export class AlbumService {
     const albumIdx = this.db.albums.findIndex((album) => album.id === id);
     if (albumIdx === -1) this.notFound(id, 'album');
 
-    if (updateAlbumDto.artistId) {
-      const artist = await this.artistService.findOne(updateAlbumDto.artistId);
-      if (!artist) this.notFound(updateAlbumDto.artistId, 'artist');
-    }
-
     this.db.albums[albumIdx] = {
       ...this.db.albums[albumIdx],
       ...updateAlbumDto,
@@ -61,7 +63,7 @@ export class AlbumService {
     const albumIdx = this.db.albums.findIndex((album) => album.id === id);
     if (albumIdx === -1) this.notFound(id, 'album');
 
-    this.db.tracks = this.db.tracks.filter((track) => track.albumId !== id);
+    await this.trackService.removeAlbumId(id);
 
     await this.favouritesService.removeAlbum(id);
 
@@ -69,6 +71,10 @@ export class AlbumService {
     return deletedAlbum;
   }
 
+  async removeArtistId(id: string) {
+    const albums = this.db.albums.filter((album) => album.artistId !== id);
+    this.db.albums = albums;
+  }
   private notFound(id: string, entity: string) {
     throw new HttpException(
       `${entity.toUpperCase()} with id:${id} is not exist`,

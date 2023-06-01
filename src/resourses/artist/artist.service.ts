@@ -1,7 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { AlbumService } from '../album/album.service';
 import { FavouritesService } from '../favourites/favourites.service';
-import { InMemoryDb } from '../../db/db.service';
+import { InMemoryDb } from '../../db/db.service.db';
 import { TrackService } from '../track/track.service';
 import { ArtistEntity } from './entities/artist.entity';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,9 +18,12 @@ import { UpdateArtistDto } from './dto/updateArtist.dto';
 export class ArtistService {
   constructor(
     private db: InMemoryDb,
-    private readonly albumService: AlbumService,
-    private readonly trackService: TrackService,
-    private readonly favouritesService: FavouritesService,
+    @Inject(forwardRef(() => AlbumService))
+    private albumService: AlbumService,
+    @Inject(forwardRef(() => TrackService))
+    private trackService: TrackService,
+    @Inject(forwardRef(() => FavouritesService))
+    private favouritesService: FavouritesService,
   ) {}
 
   async findAll(): Promise<ArtistEntity[]> {
@@ -56,9 +65,8 @@ export class ArtistService {
     const artistIdx = this.db.artists.findIndex((artist) => artist.id === id);
     if (artistIdx === -1) this.notFound(id, 'artist');
 
-    this.db.tracks = this.db.tracks.filter((track) => track.artistId !== id);
-    this.db.albums = this.db.albums.filter((album) => album.artistId !== id);
-
+    await this.albumService.removeArtistId(id);
+    await this.trackService.removeArtistId(id);
     await this.favouritesService.removeArtist(id);
 
     const [deletedArtist] = this.db.artists.splice(artistIdx, 1);

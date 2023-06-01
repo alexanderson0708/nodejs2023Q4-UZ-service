@@ -15,7 +15,6 @@ import { DbModule } from './db/db.module';
     FavouritesModule,
     TrackModule,
     UserModule,
-    DbModule,
   ],
   controllers: [AppController],
   providers: [AppService],

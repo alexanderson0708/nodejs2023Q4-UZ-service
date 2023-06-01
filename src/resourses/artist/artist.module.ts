@@ -15,5 +15,6 @@ import { DbModule } from '../../db/db.module';
   ],
   controllers: [ArtistController],
   providers: [ArtistService],
+  exports: [ArtistService],
 })
 export class ArtistModule {}

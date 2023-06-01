@@ -15,5 +15,6 @@ import { DbModule } from '../../db/db.module';
   ],
   controllers: [FavouritesController],
   providers: [FavouritesService],
+  exports: [FavouritesService],
 })
 export class FavouritesModule {}

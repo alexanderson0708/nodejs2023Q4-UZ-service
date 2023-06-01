@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { UserEntity } from './entities/user.entity';
-import { InMemoryDb } from '../../db/db.service';
+import { InMemoryDb } from '../../db/db.service.db';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 
