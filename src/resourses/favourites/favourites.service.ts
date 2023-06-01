@@ -13,7 +13,7 @@ export class FavouritesService {
     private artistService: ArtistService,
     private trackService: TrackService,
   ) {}
-  findAll(): FavouritesEntity {
+  findAll() {
     return this.db.favourites;
   }
 
