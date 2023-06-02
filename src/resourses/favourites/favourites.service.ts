@@ -25,26 +25,20 @@ export class FavouritesService {
   findAll() {
     const { artists, albums, tracks } = this.db.favourites;
 
-    const favourites: FavouritesEntity = {
-      artists: [],
-      albums: [],
-      tracks: [],
-    };
+    const favourites: FavouritesEntity = new FavouritesEntity();
 
-    artists.forEach((id) => {
-      const artist = this.db.artists.find((artist) => artist.id === id);
-      favourites.artists.push(artist);
-    });
+    favourites.artists = artists.map((id) =>
+      this.db.artists.find((artist) => artist.id === id),
+    );
 
-    albums.forEach((id) => {
-      const album = this.db.albums.find((album) => album.id === id);
-      favourites.albums.push(album);
-    });
+    favourites.albums = albums.map((id) =>
+      this.db.albums.find((album) => album.id === id),
+    );
 
-    tracks.forEach((id) => {
-      const track = this.db.tracks.find((track) => track.id === id);
-      favourites.tracks.push(track);
-    });
+    favourites.tracks = tracks.map((id) =>
+      this.db.tracks.find((track) => track.id === id),
+    );
+
     return favourites;
   }
 
@@ -55,23 +49,26 @@ export class FavouritesService {
         `${entityType.toUpperCase()} with id:${id} not found`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
-    this.db.favourites[`${entityType}s`].push(id);
-    return { message: `${entityType.toUpperCase()} successfully added` };
+    await this.db.favourites[`${entityType}s`].push(id);
+    return {
+      message: `${entityType.toUpperCase()} successfully added to favourites`,
+    };
   }
 
   async remove(id: string, entityType: string, flag: boolean) {
-    try {
-      const entityIdx = this.db.favourites[`${entityType}s`].findIndex(
-        (entityId) => entityId === id,
+    const entityIdx = await this.db.favourites[`${entityType}s`].findIndex(
+      (entityId) => entityId === id,
+    );
+    if (entityIdx === -1 && !flag) {
+      throw new HttpException(
+        `${entityType.toUpperCase()} with id:${id} is not favorite`,
+        HttpStatus.NOT_FOUND,
       );
-      if (entityIdx === -1 && !flag)
-        throw new HttpException(
-          `${entityType.toUpperCase()} with id:${id} is not favorite`,
-          HttpStatus.NOT_FOUND,
-        );
-      this.db.favourites[`${entityType}s`].splice(entityIdx, 1);
-      return { message: `${entityType.toUpperCase()} successfully deleted` };
-    } catch (e) {}
+    } else {
+      await this.db.favourites[`${entityType}s`].splice(entityIdx, 1);
+    }
+
+    return { message: `${entityType.toUpperCase()} successfully deleted` };
   }
 
   async addAlbum(id: string) {

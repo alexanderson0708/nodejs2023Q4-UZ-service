@@ -25,7 +25,7 @@ export class ArtistController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<ArtistEntity[]> {
-    return this.artistService.findAll();
+    return await this.artistService.findAll();
   }
 
   @Get(':id')
@@ -49,7 +49,7 @@ export class ArtistController {
   async create(
     @Body() createArtistDto: CreateArtistDto,
   ): Promise<ArtistEntity> {
-    return this.artistService.create(createArtistDto);
+    return await this.artistService.create(createArtistDto);
   }
 
   @Delete(':id')
@@ -58,7 +58,7 @@ export class ArtistController {
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ArtistEntity> {
-    return this.artistService.delete(id);
+    return await this.artistService.delete(id);
   }
 
   @Put(':id')
@@ -68,6 +68,6 @@ export class ArtistController {
     @Body() updateArtistDto: UpdateArtistDto,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ArtistEntity> {
-    return this.artistService.update(id, updateArtistDto);
+    return await this.artistService.update(id, updateArtistDto);
   }
 }

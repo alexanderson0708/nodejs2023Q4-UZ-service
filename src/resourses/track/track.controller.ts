@@ -25,7 +25,7 @@ export class TrackController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<TrackEntity[]> {
-    return this.trackService.findAll();
+    return await this.trackService.findAll();
   }
 
   @Get(':id')
@@ -47,7 +47,7 @@ export class TrackController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createTrackDto: CreateTrackDto): Promise<TrackEntity> {
-    return this.trackService.create(createTrackDto);
+    return await this.trackService.create(createTrackDto);
   }
 
   @Delete(':id')
@@ -56,7 +56,7 @@ export class TrackController {
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<TrackEntity> {
-    return this.trackService.delete(id);
+    return await this.trackService.delete(id);
   }
 
   @Put(':id')
@@ -66,6 +66,6 @@ export class TrackController {
     @Body() updateTrackDto: UpdateTrackDto,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<TrackEntity> {
-    return this.trackService.update(id, updateTrackDto);
+    return await this.trackService.update(id, updateTrackDto);
   }
 }
