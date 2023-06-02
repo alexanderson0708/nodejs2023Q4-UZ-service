@@ -28,8 +28,7 @@ export class AlbumService {
   }
 
   async findOne(id: string): Promise<AlbumEntity> {
-    const album = this.db.albums.find(({ id: albumId }) => albumId === id);
-    return album ?? null;
+    return this.db.albums.find(({ id: albumId }) => albumId === id) ?? null;
   }
 
   async create(createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
@@ -63,7 +62,6 @@ export class AlbumService {
     const [deletedAlbum] = this.db.albums.splice(albumIdx, 1);
 
     await this.trackService.removeAlbumId(id);
-
     await this.favouritesService.removeAlbum(id, true);
 
     return deletedAlbum;
@@ -78,7 +76,7 @@ export class AlbumService {
   }
   private notFound(id: string, entity: string) {
     throw new HttpException(
-      `${entity.toUpperCase()} with id:${id} is not exist`,
+      `${entity.toUpperCase()} with id:${id} is not found`,
       HttpStatus.NOT_FOUND,
     );
   }

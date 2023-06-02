@@ -19,17 +19,16 @@ import { CreateTrackDto } from './dto/createTrack.dto';
 import { UpdateTrackDto } from './dto/updateTrack.dto';
 
 @Controller('track')
+@UseInterceptors(ClassSerializerInterceptor)
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<TrackEntity[]> {
     return await this.trackService.findAll();
   }
 
   @Get(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id,
@@ -44,14 +43,12 @@ export class TrackController {
   }
 
   @Post()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createTrackDto: CreateTrackDto): Promise<TrackEntity> {
     return await this.trackService.create(createTrackDto);
   }
 
   @Delete(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -60,7 +57,6 @@ export class TrackController {
   }
 
   @Put(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(
     @Body() updateTrackDto: UpdateTrackDto,

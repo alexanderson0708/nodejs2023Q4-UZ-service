@@ -19,17 +19,16 @@ import { UpdateAlbumDto } from './dto/updateAlbum.dto';
 import { CreateAlbumDto } from './dto/createAlbum.dto';
 
 @Controller('album')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<AlbumEntity[]> {
     return await this.albumService.findAll();
   }
 
   @Get(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findOne(
     @Param(
@@ -51,14 +50,12 @@ export class AlbumController {
   }
 
   @Post()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
     return await this.albumService.create(createAlbumDto);
   }
 
   @Delete(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param(
@@ -74,7 +71,6 @@ export class AlbumController {
   }
 
   @Put(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(
     @Body() updateAlbumDto: UpdateAlbumDto,

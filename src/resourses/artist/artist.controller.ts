@@ -19,17 +19,16 @@ import { UpdateArtistDto } from './dto/updateArtist.dto';
 import { CreateArtistDto } from './dto/createArtist.dto';
 
 @Controller('artist')
+@UseInterceptors(ClassSerializerInterceptor)
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<ArtistEntity[]> {
     return await this.artistService.findAll();
   }
 
   @Get(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id,
@@ -44,7 +43,6 @@ export class ArtistController {
   }
 
   @Post()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createArtistDto: CreateArtistDto,
@@ -53,7 +51,6 @@ export class ArtistController {
   }
 
   @Delete(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -62,7 +59,6 @@ export class ArtistController {
   }
 
   @Put(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(
     @Body() updateArtistDto: UpdateArtistDto,
