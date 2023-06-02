@@ -5,7 +5,6 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { ArtistService } from '../artist/artist.service';
 import { FavouritesService } from '../favourites/favourites.service';
 import { InMemoryDb } from '../../db/db.service.db';
 import { TrackService } from '../track/track.service';
@@ -38,9 +37,7 @@ export class AlbumService {
       id: uuidv4(),
       ...createAlbumDto,
     };
-
     this.db.albums.push(newAlbum);
-
     return newAlbum;
   }
 
@@ -63,17 +60,21 @@ export class AlbumService {
     const albumIdx = this.db.albums.findIndex((album) => album.id === id);
     if (albumIdx === -1) this.notFound(id, 'album');
 
+    const [deletedAlbum] = this.db.albums.splice(albumIdx, 1);
+
     await this.trackService.removeAlbumId(id);
 
-    await this.favouritesService.removeAlbum(id);
+    await this.favouritesService.removeAlbum(id, true);
 
-    const [deletedAlbum] = this.db.albums.splice(albumIdx, 1);
     return deletedAlbum;
   }
 
   async removeArtistId(id: string) {
-    const albums = this.db.albums.filter((album) => album.artistId !== id);
-    this.db.albums = albums;
+    this.db.albums.forEach((album) => {
+      if (album.artistId === id) {
+        album.artistId = null;
+      }
+    });
   }
   private notFound(id: string, entity: string) {
     throw new HttpException(

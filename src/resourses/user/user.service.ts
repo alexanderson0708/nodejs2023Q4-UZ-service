@@ -37,15 +37,15 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, UpdateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = this.db.users.find((user) => user.id === id);
     if (!user) throw new NotFoundException(`User with id:${id} is not exist`);
-    if (UpdateUserDto.newPassword === UpdateUserDto.oldPassword)
+    if (updateUserDto.newPassword === updateUserDto.oldPassword)
       throw new ForbiddenException('You can not write the same password');
-    if (user.password === UpdateUserDto.oldPassword)
+    if (user.password !== updateUserDto.oldPassword)
       throw new ForbiddenException('Wrong current password');
     user.version += 1;
-    user.password = UpdateUserDto.newPassword;
+    user.password = updateUserDto.newPassword;
     user.updatedAt = Date.now();
     return user;
   }

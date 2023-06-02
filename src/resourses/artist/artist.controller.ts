@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -33,7 +34,13 @@ export class ArtistController {
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id,
   ): Promise<ArtistEntity> {
-    return await this.artistService.findOne(id);
+    const artist = await this.artistService.findOne(id);
+    if (!artist)
+      throw new HttpException(
+        `Artist with id:${id} is not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    return artist;
   }
 
   @Post()

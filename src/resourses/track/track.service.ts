@@ -58,20 +58,26 @@ export class TrackService {
     const trackIdx = this.db.tracks.findIndex((track) => track.id === id);
     if (trackIdx === -1) this.notFound(id, 'track');
 
-    await this.favouritesService.removeTrack(id);
+    await this.favouritesService.removeTrack(id, true);
 
     const [deletedTrack] = this.db.tracks.splice(trackIdx, 1);
     return deletedTrack;
   }
 
   async removeArtistId(id: string) {
-    const artists = this.db.tracks.filter((track) => track.artistId !== id);
-    this.db.tracks = artists;
+    this.db.tracks.forEach((track) => {
+      if (track.artistId === id) {
+        track.artistId = null;
+      }
+    });
   }
 
   async removeAlbumId(id: string) {
-    const albums = this.db.tracks.filter((track) => track.albumId !== id);
-    this.db.tracks = albums;
+    this.db.tracks.forEach((track) => {
+      if (track.albumId === id) {
+        track.albumId = null;
+      }
+    });
   }
 
   private notFound(id: string, entity: string) {

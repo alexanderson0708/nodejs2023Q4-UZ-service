@@ -13,6 +13,6 @@ import { FavouritesModule } from '../favourites/favourites.module';
   ],
   controllers: [AlbumController],
   providers: [AlbumService],
-  exports:[AlbumService]
+  exports: [AlbumService],
 })
 export class AlbumModule {}

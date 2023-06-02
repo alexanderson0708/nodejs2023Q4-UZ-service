@@ -9,6 +9,7 @@ import { InMemoryDb } from '../../db/db.service.db';
 import { AlbumService } from '../album/album.service';
 import { ArtistService } from '../artist/artist.service';
 import { TrackService } from '../track/track.service';
+import { FavouritesEntity } from './entities/favourites.entity';
 
 @Injectable()
 export class FavouritesService {
@@ -22,7 +23,29 @@ export class FavouritesService {
     private trackService: TrackService,
   ) {}
   findAll() {
-    return this.db.favourites;
+    const { artists, albums, tracks } = this.db.favourites;
+
+    const favourites: FavouritesEntity = {
+      artists: [],
+      albums: [],
+      tracks: [],
+    };
+
+    artists.forEach((id) => {
+      const artist = this.db.artists.find((artist) => artist.id === id);
+      favourites.artists.push(artist);
+    });
+
+    albums.forEach((id) => {
+      const album = this.db.albums.find((album) => album.id === id);
+      favourites.albums.push(album);
+    });
+
+    tracks.forEach((id) => {
+      const track = this.db.tracks.find((track) => track.id === id);
+      favourites.tracks.push(track);
+    });
+    return favourites;
   }
 
   async add(id: string, entityType: string) {
@@ -32,40 +55,42 @@ export class FavouritesService {
         `${entityType.toUpperCase()} with id:${id} not found`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
-    this.db.favourites[`${entityType}`].push(entity.id);
+    this.db.favourites[`${entityType}s`].push(id);
     return { message: `${entityType.toUpperCase()} successfully added` };
   }
 
-  async remove(id: string, entityType: string) {
-    const entityIdx = await this.db.favourites[
-      `${entityType}Service`
-    ].findIndex((entityId) => entityId === id);
-    if (entityIdx === -1)
-      throw new HttpException(
-        `${entityType.toUpperCase()} with id:${id} is not favorite`,
-        HttpStatus.NOT_FOUND,
+  async remove(id: string, entityType: string, flag: boolean) {
+    try {
+      const entityIdx = this.db.favourites[`${entityType}s`].findIndex(
+        (entityId) => entityId === id,
       );
-    this.db.favourites[`${entityType}`].splice(entityIdx, 1);
-    return { message: `${entityType.toUpperCase()} successfully deleted` };
+      if (entityIdx === -1 && !flag)
+        throw new HttpException(
+          `${entityType.toUpperCase()} with id:${id} is not favorite`,
+          HttpStatus.NOT_FOUND,
+        );
+      this.db.favourites[`${entityType}s`].splice(entityIdx, 1);
+      return { message: `${entityType.toUpperCase()} successfully deleted` };
+    } catch (e) {}
   }
 
   async addAlbum(id: string) {
-    return this.add(id, 'album');
+    return await this.add(id, 'album');
   }
   async addTrack(id: string) {
-    return this.add(id, 'track');
+    return await this.add(id, 'track');
   }
   async addArtist(id: string) {
     return await this.add(id, 'artist');
   }
 
-  async removeAlbum(id: string) {
-    return await this.remove(id, 'album');
+  async removeAlbum(id: string, flag = false) {
+    return await this.remove(id, 'album', flag);
   }
-  async removeTrack(id: string) {
-    return await this.remove(id, 'track');
+  async removeTrack(id: string, flag = false) {
+    return await this.remove(id, 'track', flag);
   }
-  async removeArtist(id: string) {
-    return await this.remove(id, 'artist');
+  async removeArtist(id: string, flag = false) {
+    return await this.remove(id, 'artist', flag);
   }
 }

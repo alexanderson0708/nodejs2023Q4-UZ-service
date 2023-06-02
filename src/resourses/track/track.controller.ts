@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -33,7 +34,13 @@ export class TrackController {
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id,
   ): Promise<TrackEntity> {
-    return await this.trackService.findOne(id);
+    const track = await this.trackService.findOne(id);
+    if (!track)
+      throw new HttpException(
+        `Track with id:${id} is not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    return track;
   }
 
   @Post()

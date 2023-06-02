@@ -67,7 +67,7 @@ export class ArtistService {
 
     await this.albumService.removeArtistId(id);
     await this.trackService.removeArtistId(id);
-    await this.favouritesService.removeArtist(id);
+    await this.favouritesService.removeArtist(id, true);
 
     const [deletedArtist] = this.db.artists.splice(artistIdx, 1);
     return deletedArtist;

@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -24,8 +25,7 @@ export class AlbumController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<AlbumEntity[]> {
-    console.log(555);
-    return this.albumService.findAll();
+    return await this.albumService.findAll();
   }
 
   @Get(':id')
@@ -41,23 +41,36 @@ export class AlbumController {
     )
     id: string,
   ): Promise<AlbumEntity> {
-    return await this.albumService.findOne(id);
+    const album = await this.albumService.findOne(id);
+    if (!album)
+      throw new HttpException(
+        `Album with id:${id} is not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    return album;
   }
 
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createAlbumDto: CreateAlbumDto): Promise<AlbumEntity> {
-    return this.albumService.create(createAlbumDto);
+    return await this.albumService.create(createAlbumDto);
   }
 
   @Delete(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+        errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+      }),
+    )
+    id: string,
   ): Promise<AlbumEntity> {
-    return this.albumService.delete(id);
+    return await this.albumService.delete(id);
   }
 
   @Put(':id')
@@ -67,6 +80,6 @@ export class AlbumController {
     @Body() updateAlbumDto: UpdateAlbumDto,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<AlbumEntity> {
-    return this.albumService.update(id, updateAlbumDto);
+    return await this.albumService.update(id, updateAlbumDto);
   }
 }
