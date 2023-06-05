@@ -38,7 +38,6 @@ export class FavouritesService {
     favourites.tracks = tracks.map((id) =>
       this.db.tracks.find((track) => track.id === id),
     );
-
     return favourites;
   }
 
@@ -50,7 +49,6 @@ export class FavouritesService {
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     await this.db.favourites[`${entityType}s`].push(id);
-    console.log(`Create: ${!entity}`, this.db.favourites);
     return {
       message: `${entityType.toUpperCase()} successfully added to favourites`,
     };
@@ -60,15 +58,16 @@ export class FavouritesService {
     const entityIdx = await this.db.favourites[`${entityType}s`].findIndex(
       (entityId) => entityId === id,
     );
-    if (entityIdx === -1 && !flag) {
-      throw new HttpException(
-        `${entityType.toUpperCase()} with id:${id} is not favorite`,
-        HttpStatus.NOT_FOUND,
-      );
+    if (entityIdx === -1) {
+      if (!flag) {
+        throw new HttpException(
+          `${entityType.toUpperCase()} with id:${id} is not favorite`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
     } else {
       await this.db.favourites[`${entityType}s`].splice(entityIdx, 1);
     }
-    console.log(`Delete: ${entityIdx}`, this.db.favourites);
     return { message: `${entityType.toUpperCase()} successfully deleted` };
   }
 
