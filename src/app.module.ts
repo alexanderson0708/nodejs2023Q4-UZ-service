@@ -7,15 +7,17 @@ import { FavouritesModule } from './resourses/favourites/favourites.module';
 import { TrackModule } from './resourses/track/track.module';
 import { UserModule } from './resourses/user/user.module';
 import { DbModule } from './db/db.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SourceData } from './data-source.config';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot(SourceData.options),
     AlbumModule,
     ArtistModule,
     FavouritesModule,
     TrackModule,
     UserModule,
-    DbModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,11 +4,14 @@ import { FavouritesService } from './favourites.service';
 import { TrackModule } from '../track/track.module';
 import { ArtistModule } from '../artist/artist.module';
 import { AlbumModule } from '../album/album.module';
-import { DbModule } from '../../db/db.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { FavAlbumEntity } from './entities/favAlbum.entity';
+import { FavArtistEntity } from './entities/favArtist.entity';
+import { FavTrackEntity } from './entities/favTrack.entity';
 
 @Module({
   imports: [
-    DbModule,
+    TypeOrmModule.forFeature([FavAlbumEntity, FavArtistEntity, FavTrackEntity]),
     forwardRef(() => AlbumModule),
     forwardRef(() => TrackModule),
     forwardRef(() => ArtistModule),

@@ -11,7 +11,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FavouritesService } from './favourites.service';
-import { FavouritesEntity } from './entities/favourites.entity';
 
 @Controller('favs')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -19,7 +18,7 @@ export class FavouritesController {
   constructor(private readonly favouritesService: FavouritesService) {}
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<FavouritesEntity> {
+  async findAll() {
     return this.favouritesService.findAll();
   }
 

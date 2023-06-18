@@ -66,7 +66,7 @@ export class AlbumController {
       }),
     )
     id: string,
-  ): Promise<AlbumEntity> {
+  ): Promise<void> {
     return await this.albumService.delete(id);
   }
 

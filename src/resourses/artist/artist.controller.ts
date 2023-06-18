@@ -54,7 +54,7 @@ export class ArtistController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<ArtistEntity> {
+  ): Promise<void> {
     return await this.artistService.delete(id);
   }
 

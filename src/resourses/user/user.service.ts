@@ -3,58 +3,59 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { UserEntity } from './entities/user.entity';
-import { InMemoryDb } from '../../db/db.service.db';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class UserService {
-  constructor(private db: InMemoryDb) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepo: Repository<UserEntity>,
+  ) {}
 
   async findAll(): Promise<UserEntity[]> {
-    return this.db.users;
+    return await this.userRepo.find();
   }
 
   async findOne(id: string): Promise<UserEntity> {
-    const user = this.db.users.find(({ id: userId }) => userId === id);
+    const user = await this.userRepo.findOneBy({ id });
     if (!user) throw new NotFoundException(`User with id:${id} is not exist`);
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const date = Date.now();
-    const user = new UserEntity({
-      id: uuidv4(),
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: date,
-      updatedAt: date,
-    });
-    this.db.users.push(user);
+  async create({ login, password }: CreateUserDto): Promise<UserEntity> {
+    const hash = this.hashPassword(password);
+    const newUser = await this.userRepo.create({ login, password: hash });
+    const user = await this.userRepo.save(newUser);
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    const user = this.db.users.find((user) => user.id === id);
+  private hashPassword(password: string): string {
+    return createHash('sha256').update(password).digest('hex');
+  }
+  async update(id: string, { oldPassword, newPassword }: UpdateUserDto) {
+    const user = await this.userRepo.findOneBy({ id });
+
     if (!user) throw new NotFoundException(`User with id:${id} is not exist`);
-    if (updateUserDto.newPassword === updateUserDto.oldPassword)
+    if (this.hashPassword(oldPassword) !== user.password)
+      throw new ForbiddenException('Old password is wrong');
+    if (oldPassword === newPassword)
       throw new ForbiddenException('You can not write the same password');
-    if (user.password !== updateUserDto.oldPassword)
-      throw new ForbiddenException('Wrong current password');
-    user.version += 1;
-    user.password = updateUserDto.newPassword;
-    user.updatedAt = Date.now();
-    return user;
+
+    const updateUser = await this.userRepo.update(id, {
+      password: this.hashPassword(newPassword),
+    });
+    return await this.userRepo.findOneBy({ id });
   }
 
-  async delete(id: string): Promise<UserEntity> {
-    const userIdx = this.db.users.findIndex((user) => user.id === id);
-    if (userIdx === -1)
+  async delete(id: string): Promise<void> {
+    const user = await this.userRepo.delete(id);
+    if (!user.affected)
       throw new NotFoundException(`User with id:${id} is not exist`);
-    const [deletedUser] = this.db.users.splice(userIdx, 1);
-    return deletedUser;
+    return;
   }
 }

@@ -49,7 +49,7 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<UserEntity> {
+  ): Promise<void> {
     return this.userService.delete(id);
   }
 

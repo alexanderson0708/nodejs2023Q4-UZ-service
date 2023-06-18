@@ -1,0 +1,10 @@
+.idea
+**/node_modules
+.git
+Dockerfile
+dist
+.env
+logs
+temp
+README.md
+npm-debug.log
