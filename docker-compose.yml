@@ -12,7 +12,7 @@ services:
     ports:
       - ${PORT}:${PORT}
     depends_on:
-      - postgres
+      - database
     volumes:
       - .:/app
       - /app/node_modules
@@ -22,8 +22,8 @@ services:
     restart: always
     command: npm run start:dev
 
-  postgres:
-    container_name: postgres
+  database:
+    container_name: database
     image: postgres
     build:
       context: .

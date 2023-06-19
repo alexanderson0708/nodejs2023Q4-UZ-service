@@ -31,18 +31,30 @@ export class FavouritesService {
 
   async addAlbum(id: string) {
     const album = await this.favAlbumRepo.create({ albumId: id });
-    await this.favAlbumRepo.save(album);
-    return { message: `Album with id:${id} has been added to favourites` };
+    try {
+      await this.favAlbumRepo.save(album);
+      return { message: `Album with id:${id} has been added to favourites` };
+    } catch (e) {
+      throw new HttpException(`Album with id: ${id} does not exist`, 422);
+    }
   }
   async addTrack(id: string) {
     const track = await this.favTrackRepo.create({ trackId: id });
-    await this.favTrackRepo.save(track);
-    return { message: `Track with id:${id} has been added to favourites` };
+    try {
+      await this.favTrackRepo.save(track);
+      return { message: `Track with id:${id} has been added to favourites` };
+    } catch (e) {
+      throw new HttpException(`Track with id: ${id} does not exist`, 422);
+    }
   }
   async addArtist(id: string) {
     const artist = await this.favArtistRepo.create({ artistId: id });
-    await this.favArtistRepo.save(artist);
-    return { message: `Artist with id:${id} has been added to favourites` };
+    try {
+      await this.favArtistRepo.save(artist);
+      return { message: `Artist with id:${id} has been added to favourites` };
+    } catch (e) {
+      throw new HttpException(`Artist with id: ${id} does not exist`, 422);
+    }
   }
 
   async removeAlbum(id: string) {
