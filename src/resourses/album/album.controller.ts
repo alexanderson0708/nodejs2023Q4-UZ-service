@@ -11,15 +11,18 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { AlbumEntity } from './entities/album.entity';
 import { UpdateAlbumDto } from './dto/updateAlbum.dto';
 import { CreateAlbumDto } from './dto/createAlbum.dto';
+import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('album')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
   @Get()

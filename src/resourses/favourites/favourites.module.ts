@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FavAlbumEntity } from './entities/favAlbum.entity';
 import { FavArtistEntity } from './entities/favArtist.entity';
 import { FavTrackEntity } from './entities/favTrack.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FavTrackEntity } from './entities/favTrack.entity';
     forwardRef(() => AlbumModule),
     forwardRef(() => TrackModule),
     forwardRef(() => ArtistModule),
+    AuthModule,
   ],
   controllers: [FavouritesController],
   providers: [FavouritesService],

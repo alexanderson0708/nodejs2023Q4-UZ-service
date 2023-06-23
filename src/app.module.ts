@@ -8,15 +8,24 @@ import { TrackModule } from './resourses/track/track.module';
 import { UserModule } from './resourses/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SourceData } from './ormconfig';
+import { AuthModule } from './resourses/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './resourses/auth/guards/auth.guard';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(SourceData.options),
     AlbumModule,
     ArtistModule,
     FavouritesModule,
     TrackModule,
     UserModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule.forRoot(SourceData.options),
   ],
   controllers: [AppController],
   providers: [AppService],

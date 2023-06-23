@@ -8,12 +8,15 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FavouritesService } from './favourites.service';
+import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('favs')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class FavouritesController {
   constructor(private readonly favouritesService: FavouritesService) {}
   @Get()

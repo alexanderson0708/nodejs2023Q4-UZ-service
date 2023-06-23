@@ -8,7 +8,8 @@ import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { createHash } from 'node:crypto';
+import * as bcrypt from 'bcrypt';
+import * as process from 'process';
 
 @Injectable()
 export class UserService {
@@ -28,26 +29,26 @@ export class UserService {
   }
 
   async create({ login, password }: CreateUserDto): Promise<UserEntity> {
-    const hash = this.hashPassword(password);
+    const hash = await this.hashPassword(password);
     const newUser = await this.userRepo.create({ login, password: hash });
     const user = await this.userRepo.save(newUser);
     return user;
   }
 
-  private hashPassword(password: string): string {
-    return createHash('sha256').update(password).digest('hex');
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, +process.env.CRYPT_SALT);
   }
   async update(id: string, { oldPassword, newPassword }: UpdateUserDto) {
     const user = await this.userRepo.findOneBy({ id });
 
     if (!user) throw new NotFoundException(`User with id:${id} is not exist`);
-    if (this.hashPassword(oldPassword) !== user.password)
+    if ((await this.hashPassword(oldPassword)) !== user.password)
       throw new ForbiddenException('Old password is wrong');
     if (oldPassword === newPassword)
       throw new ForbiddenException('You can not write the same password');
 
-    const updateUser = await this.userRepo.update(id, {
-      password: this.hashPassword(newPassword),
+    await this.userRepo.update(id, {
+      password: await this.hashPassword(newPassword),
     });
     return await this.userRepo.findOneBy({ id });
   }
@@ -57,5 +58,26 @@ export class UserService {
     if (!user.affected)
       throw new NotFoundException(`User with id:${id} is not exist`);
     return;
+  }
+
+  async getUserByLogin(login: string) {
+    return await this.userRepo.findOne({ where: { login } });
+  }
+
+  async validateUser(createUserDto: CreateUserDto) {
+    const user = await this.getUserByLogin(createUserDto.login);
+    if (!user)
+      throw new ForbiddenException({
+        message: `User with login: ${createUserDto.login} is not exist`,
+      });
+    const isCorrectPassword = await bcrypt.compare(
+      createUserDto.password,
+      user.password,
+    );
+    if (!isCorrectPassword)
+      throw new ForbiddenException({
+        message: `User with password: ${createUserDto.password} is incorrect`,
+      });
+    return user;
   }
 }
