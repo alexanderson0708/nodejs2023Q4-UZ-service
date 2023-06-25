@@ -13,7 +13,7 @@ git clone https://github.com/alexanderson0708/nodejs2023Q4-UZ-service
 ```
 
 ```
-git checkout containerization-database-orm
+git checkout logging-error-handling
 ```
 
 ## Installing NPM modules
