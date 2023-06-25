@@ -16,21 +16,25 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup(createUserDto: CreateUserDto) {
-    const user = await this.userService.getUserByLogin(createUserDto.login);
-    if (user)
+  async signup(createUserDto: CreateUserDto): Promise<UserEntity> {
+    console.log('signup-service');
+    let user;
+    try {
+      user = await this.userService.create(createUserDto);
+    } catch (e) {
       throw new BadRequestException({
         message: `User with login:${createUserDto.login} has already exist`,
       });
-    return await this.userService.create(createUserDto);
+    }
+    return user;
   }
 
   async signin(createUserDto: CreateUserDto) {
     const user = await this.userService.validateUser(createUserDto);
-    return this.createToken(user);
+    return this.getToken(user);
   }
 
-  async createToken({ id, login }: UserEntity) {
+  async getToken({ id, login }: UserEntity) {
     const payload = { userId: id, login: login };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -47,13 +51,17 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     try {
-      const { userId, login } = await this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_SECRET_REFRESH_KEY,
-      });
+      const { userId, login } = await this.jwtService.verifyAsync(
+        refreshToken,
+        {
+          secret: process.env.JWT_SECRET_REFRESH_KEY,
+          ignoreExpiration: false,
+        },
+      );
       const user = await this.userService.getUserByLogin(login);
       if (!user || user.id !== userId)
         throw new ForbiddenException({ message: `User is not exist` });
-      return this.createToken(user);
+      return this.getToken(user);
     } catch (e) {
       throw new ForbiddenException({ message: 'Invalid RefreshToken' });
     }

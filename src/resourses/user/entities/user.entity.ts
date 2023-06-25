@@ -11,7 +11,7 @@ import {
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ name: 'name', type: 'varchar' })
+  @Column({ name: 'name', type: 'varchar', unique: true })
   login: string;
   @Column({ name: 'password', type: 'varchar' })
   @Exclude()
@@ -24,5 +24,4 @@ export class UserEntity {
   @UpdateDateColumn({ name: 'update', type: 'timestamp' })
   @Transform(({ value }) => new Date(value).getTime())
   updatedAt: number;
-
 }

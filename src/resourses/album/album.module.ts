@@ -11,7 +11,6 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([AlbumEntity, ArtistEntity]),
     forwardRef(() => TrackModule),
-    AuthModule,
   ],
   controllers: [AlbumController],
   providers: [AlbumService],

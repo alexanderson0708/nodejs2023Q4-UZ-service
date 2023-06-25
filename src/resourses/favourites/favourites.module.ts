@@ -16,7 +16,6 @@ import { AuthModule } from '../auth/auth.module';
     forwardRef(() => AlbumModule),
     forwardRef(() => TrackModule),
     forwardRef(() => ArtistModule),
-    AuthModule,
   ],
   controllers: [FavouritesController],
   providers: [FavouritesService],

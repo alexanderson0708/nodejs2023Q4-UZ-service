@@ -20,9 +20,9 @@ import { CreateTrackDto } from './dto/createTrack.dto';
 import { UpdateTrackDto } from './dto/updateTrack.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('track')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
   @Get()

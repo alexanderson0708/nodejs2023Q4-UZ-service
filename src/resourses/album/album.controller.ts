@@ -20,9 +20,9 @@ import { UpdateAlbumDto } from './dto/updateAlbum.dto';
 import { CreateAlbumDto } from './dto/createAlbum.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('album')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
   @Get()

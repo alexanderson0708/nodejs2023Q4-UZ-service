@@ -19,20 +19,19 @@ import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
-@Controller('user')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<UserEntity[]> {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id,
@@ -41,14 +40,12 @@ export class UserController {
   }
 
   @Post()
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     return this.userService.create(createUserDto);
   }
 
   @Delete(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -57,7 +54,6 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   async update(
     @Body() updateUserDto: UpdateUserDto,

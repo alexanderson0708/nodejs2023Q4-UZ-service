@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AlbumModule } from './resourses/album/album.module';
@@ -9,9 +9,10 @@ import { UserModule } from './resourses/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SourceData } from './ormconfig';
 import { AuthModule } from './resourses/auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './resourses/auth/guards/auth.guard';
-import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { LoggerModule } from './resourses/logger/logger.module';
+import { HttpExceptionFilter } from './resourses/logger/http-exception-filter';
+import { LoggerMiddleware } from './resourses/logger/logger.middleware';
 
 @Module({
   imports: [
@@ -21,13 +22,20 @@ import { ConfigModule } from '@nestjs/config';
     TrackModule,
     UserModule,
     AuthModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
+    LoggerModule,
     TypeOrmModule.forRoot(SourceData.options),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

@@ -8,10 +8,7 @@ import { ArtistEntity } from '../artist/entities/artist.entity';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([TrackEntity, AlbumEntity, ArtistEntity]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([TrackEntity, AlbumEntity, ArtistEntity])],
   controllers: [TrackController],
   providers: [TrackService],
   exports: [TrackService],

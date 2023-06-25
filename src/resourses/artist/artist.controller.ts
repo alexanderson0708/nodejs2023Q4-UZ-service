@@ -20,9 +20,9 @@ import { UpdateArtistDto } from './dto/updateArtist.dto';
 import { CreateArtistDto } from './dto/createArtist.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('artist')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
   @Get()
